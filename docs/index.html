@@ -1,15 +1,371 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>나의 Ubuntu & GitHub & Netlify 웹페이지</title>
-    <link rel="stylesheet" href="style.css">
+    <title>보건복지 비전 및 국정 과제</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Neutral & Blue -->
+    <!-- Application Structure Plan: The SPA is structured into three logical, navigable sections (Vision, Key Tasks, Pledge) to transform the linear report into an exploratory experience. The 'Vision' section now features a central vision as a full-width card at the top, directly supported by four horizontally aligned descriptive cards below, with all connecting arrows removed for a cleaner look. This structure emphasizes the foundational role of the four pillars. The core 'Key Tasks' section uses a tabbed interface, allowing users to focus on one policy area at a time without being overwhelmed by a long scroll. This design choice significantly improves usability and information digestion. Each tab contains the most appropriate visualization (HTML flowchart for process, bar chart for comparison, etc.) or detailed instructions (for the new 'Recommendation Method' tab) to make the dense policy information intuitive and memorable. The 'Pledge' section provides a concluding summary. -->
+    <!-- Visualization & Content Choices: Report Info: 4 Vision Pillars -> Goal: Organize/Inform -> Viz: Full-width Card (Center) + Horizontal Cards -> Justification: Provides a clear, direct statement of the core vision, with supporting pillars laid out horizontally for easy scanning, without visual distractions of arrows. Implemented with Flexbox/Grid for responsiveness as SVG/Mermaid are forbidden. || Report Info: Medical Reform Process -> Goal: Organize Process -> Viz: HTML/CSS Flowchart -> Justification: Clearly visualizes the step-by-step plan, more intuitive than a table. Implemented with Flexbox as SVG/Mermaid are forbidden. || Report Info: Health Insurance Priorities -> Goal: Compare -> Viz: Bar Chart (Chart.js) -> Justification: Effectively compares the focus on three key areas. || Report Info: Welfare System -> Goal: Compare -> Viz: Radar Chart (Chart.js) -> Justification: Ideal for showing focus across multiple related categories. || Report Info: Minister Recommendation Method -> Goal: Inform/Instruct -> Viz: Textual Instructions + External Link Button -> Justification: Provides clear, actionable steps for user participation. || All choices confirm NO SVG/Mermaid. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; }
+        .chart-container { position: relative; width: 100%; max-width: 500px; margin-left: auto; margin-right: auto; height: 320px; max-height: 400px; }
+        @media (min-width: 768px) { .chart-container { height: 380px; } }
+        .tab-button {
+            @apply flex-1 py-3 px-4 text-center text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-blue-600 hover:border-blue-300 whitespace-nowrap;
+            transition: all 0.3s ease;
+        }
+        .tab-button.active {
+            @apply text-blue-700 border-blue-700 bg-blue-50;
+        }
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .flow-item { @apply border-2 border-blue-300 bg-blue-50 p-4 rounded-lg; }
+        .flow-arrow { @apply text-blue-600; }
+        /* Removed .vision-diagram-center as it's no longer a circle */
+    </style>
 </head>
 <body>
-    <h1>안녕하세요, Ubuntu에서 시작된 웹페이지입니다!</h1>
-    <p>이 페이지는 GitHub를 거쳐 Netlify로 배포될 예정입니다.</p>
-    <img src="images/example.jpg" alt="예시 이미지" width="300">
-    <script src="script.js"></script>
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-xl font-bold text-slate-800">보건복지 미래 비전</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#vision" class="text-slate-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">핵심 비전</a>
+                        <a href="#tasks" class="text-slate-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">주요 국정 과제</a>
+                        <a href="#pledge" class="text-slate-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">공직 수행 각오</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <section id="intro" class="text-center mb-20">
+            <h2 class="text-4xl md:text-5xl font-bold text-slate-900">국민이 주인인 포용적 보건복지 국가</h2>
+            <p class="mt-4 max-w-2xl mx-auto text-lg text-slate-600">국민의 건강과 행복을 최우선으로, 모든 국민이 안전하고 행복한 삶을 영위할 수 있는 대한민국을 만들기 위한 정책 비전과 국정 과제를 소개합니다.</p>
+            <p class="mt-6 text-md text-slate-500">2025년 6월 11일 | 강청희</p>
+        </section>
+
+        <section id="vision" class="mb-20">
+            <h3 class="text-3xl font-bold text-center text-slate-800 mb-4">4대 핵심 비전</h3>
+            <p class="text-center text-slate-600 mb-12 max-w-3xl mx-auto">이번 보건복지 비전은 '지속 가능 - 포용적 보건'을 중심으로 네 가지 핵심 목표가 유기적으로 연결되어 시너지를 창출합니다. 아래 다이어그램은 각 비전이 어떻게 상호작용하며 전체 목표를 지원하는지 보여줍니다.</p>
+
+            <!-- Vision Core Card -->
+            <div class="bg-blue-100 rounded-xl shadow-lg p-6 md:p-8 text-center w-full mb-12">
+                <h4 class="text-3xl font-bold text-blue-800 leading-tight">지속 가능 - 포용적 보건</h4>
+                <p class="mt-2 text-blue-700">모든 국민이 건강하고 행복한 삶을 누리는 대한민국</p>
+            </div>
+
+            <!-- Descriptive Cards for Each Vision -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 w-full max-w-4xl mx-auto">
+                <!-- Card 1 -->
+                <div class="p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
+                    <h4 class="font-bold text-blue-700 text-lg mb-2">🩺 지속 가능한 건강 시스템</h4>
+                    <p class="text-slate-600 text-sm">안정적인 의료 서비스 제공 및 재정 건전성 확보로 국민 건강을 증진하고, 의료 효율성을 제고합니다.</p>
+                </div>
+                <!-- Card 2 -->
+                <div class="p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
+                    <h4 class="font-bold text-blue-700 text-lg mb-2">💡 미래 보건산업 육성</h4>
+                    <p class="text-slate-600 text-sm">디지털 헬스케어, 바이오·제약 산업 성장을 지원하여 글로벌 경쟁력을 확보하고 일자리를 창출합니다.</p>
+                </div>
+                <!-- Card 3 -->
+                <div class="p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
+                    <h4 class="font-bold text-blue-700 text-lg mb-2">🤝 사회안전망 확충</h4>
+                    <p class="text-slate-600 text-sm">초고령화·저출산에 대응하고 취약계층을 지원하여 복지 사각지대를 해소하고 포용적 사회를 만듭니다.</p>
+                </div>
+                <!-- Card 4 -->
+                <div class="p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
+                    <h4 class="font-bold text-blue-700 text-lg mb-2">🌍 남북 보건 협력</h4>
+                    <p class="text-slate-600 text-sm">질병 정보 공유 및 상호 교류를 통해 호혜적 의료 환경을 개선하고 한반도 건강 공동체를 준비합니다.</p>
+                </div>
+            </div>
+            <!-- End Flow Diagram for Vision -->
+
+        </section>
+
+        <section id="tasks" class="mb-20">
+            <h3 class="text-3xl font-bold text-center text-slate-800 mb-12">5대 주요 국정 과제</h3>
+            <div class="bg-white rounded-xl shadow-lg p-4 sm:p-8">
+                <div class="border-b border-slate-200 mb-6">
+                    <nav id="taskTabs" class="flex flex-wrap -mb-px" aria-label="Tabs">
+                        <button class="tab-button active" data-tab="task1">의료 개혁</button>
+                        <button class="tab-button" data-tab="task2">건강보험</button>
+                        <button class="tab-button" data-tab="task3">미래 산업</button>
+                        <button class="tab-button" data-tab="task4">복지 시스템</button>
+                        <button class="tab-button" data-tab="task5">국제 협력</button>
+                        <button class="tab-button" data-tab="task6">장관 추천 방법</button>
+                    </nav>
+                </div>
+
+                <div id="taskPanes">
+                    <div id="task1" class="tab-pane active">
+                        <h4 class="text-2xl font-bold text-slate-800 mb-2">의료 현안 해결 및 의료 개혁 🚑</h4>
+                        <p class="text-slate-600 mb-8">의료계 갈등을 최소화하고 국민 건강권을 보호하기 위한 단계적 개혁안입니다. 소통 복원에서 시작하여 안정적 진료 환경 조성까지의 과정을 시각화했습니다.</p>
+                        <div class="flex flex-col md:flex-row items-stretch justify-between gap-4 w-full">
+                            <div class="flow-item flex-1 p-4 rounded-lg flex flex-col justify-center items-center text-center">
+                                <h5 class="font-bold text-slate-700">1. 소통 복원</h5><p class="text-sm text-slate-600 mt-1">국민참여형 공론화위원회 구성</p>
+                            </div>
+                            <div class="flow-arrow text-4xl hidden md:flex items-center">→</div>
+                            <div class="flow-item flex-1 p-4 rounded-lg flex flex-col justify-center items-center text-center">
+                                <h5 class="font-bold text-slate-700">2. 필수의료 강화</h5><p class="text-sm text-slate-600 mt-1">의대 정원 합리화, 처우 개선</p>
+                            </div>
+                            <div class="flow-arrow text-4xl hidden md:flex items-center">→</div>
+                             <div class="flow-item flex-1 p-4 rounded-lg flex flex-col justify-center items-center text-center">
+                                <h5 class="font-bold text-slate-700">3. 시스템 안정화</h5><p class="text-sm text-slate-600 mt-1">특별 지원책 및 심리 지원</p>
+                            </div>
+                            <div class="flow-arrow text-4xl hidden md:flex items-center">→</div>
+                            <div class="flow-item flex-1 p-4 rounded-lg flex flex-col justify-center items-center text-center">
+                                <h5 class="font-bold text-slate-700">4. 사법 리스크 완화</h5><p class="text-sm text-slate-600 mt-1">불가항력 사고 공적 책임 강화</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="task2" class="tab-pane">
+                         <h4 class="text-2xl font-bold text-slate-800 mb-2">지속 가능한 건강보험 시스템 💰</h4>
+                         <p class="text-slate-600 mb-8">안정적인 건강보험 운영을 위한 세 가지 핵심 과제의 정책적 중요도를 보여줍니다. 재정 건전성 확보가 가장 시급한 과제이며, 보장성 강화와 예방 중심의 패러다임 전환이 그 뒤를 잇습니다.</p>
+                         <div class="chart-container"><canvas id="insuranceChart"></canvas></div>
+                    </div>
+                    <div id="task3" class="tab-pane">
+                        <h4 class="text-2xl font-bold text-slate-800 mb-2">미래 보건산업 육성 🚀</h4>
+                        <p class="text-slate-600 mb-8">대한민국의 미래 먹거리가 될 보건산업 육성 전략입니다. 디지털 헬스케어와 바이오·제약 산업을 양대 축으로 하여 집중 투자와 규제 혁신을 추진합니다.</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+                            <div class="p-8 rounded-xl bg-blue-100 text-center">
+                                <div class="text-5xl mb-4">💻</div>
+                                <h5 class="text-xl font-bold text-blue-800">디지털 헬스케어</h5>
+                                <p class="text-blue-700 mt-2">데이터 공유 생태계 조성 및 스마트병원 지원</p>
+                            </div>
+                            <div class="p-8 rounded-xl bg-indigo-100 text-center">
+                                <div class="text-5xl mb-4">🧬</div>
+                                <h5 class="text-xl font-bold text-indigo-800">바이오·제약</h5>
+                                <p class="text-indigo-700 mt-2">R&D 투자 확대 및 글로벌 규제 혁신</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="task4" class="tab-pane">
+                        <h4 class="text-2xl font-bold text-slate-800 mb-2">포용적 복지 시스템 🧡</h4>
+                        <p class="text-slate-600 mb-8">사회 변화에 대응하고 모두를 위한 복지를 실현하기 위한 정책 분야별 집중도입니다. 초고령 사회와 저출생 문제에 대한 대응이 핵심 과제임을 알 수 있습니다.</p>
+                        <div class="chart-container"><canvas id="welfareChart"></canvas></div>
+                    </div>
+                    <div id="task5" class="tab-pane">
+                         <h4 class="text-2xl font-bold text-slate-800 mb-2">남북 및 국제 협력 🌐</h4>
+                         <p class="text-slate-600 mb-8">한반도의 건강 공동체와 글로벌 보건 위기 대응을 위한 협력 방안입니다. 인도적 교류를 시작으로 공동 연구 및 디지털 플랫폼 개발까지 협력의 범위를 넓혀나갑니다.</p>
+                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+                            <div class="p-8 rounded-xl bg-teal-100 text-center">
+                                <div class="text-5xl mb-4">🇰🇵🤝🇰🇷</div>
+                                <h5 class="text-xl font-bold text-teal-800">남북 보건의료 협력</h5>
+                                <p class="text-teal-700 mt-2">인도적 교류 및 감염병 공동 연구</p>
+                            </div>
+                            <div class="p-8 rounded-xl bg-cyan-100 text-center">
+                                <div class="text-5xl mb-4">🌍</div>
+                                <h5 class="text-xl font-bold text-cyan-800">글로벌 협력</h5>
+                                <p class="text-cyan-700 mt-2">감염병 대응 및 디지털 의료 플랫폼 공동 개발</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="task6" class="tab-pane">
+                        <h4 class="text-2xl font-bold text-slate-800 mb-2">보건복지부 장관 추천 방법</h4>
+                        <p class="text-slate-600 mb-6">아래 추천 과정을 읽어보시고 국민 추천에 참여해 주세요.</p>
+                        <ol class="list-decimal list-inside text-slate-700 space-y-2 mb-8">
+                            <li><strong>‘추천참여하기’ 클릭</strong></li>
+                            <li>‘다른사람을 추천합니다’ 클릭</li>
+                            <li>‘직위로 추천합니다’ 클릭</li>
+                            <li>‘동의’ 클릭</li>
+                            <li>휴대폰 본인인증 클릭</li>
+                            <li>PASS 어플 또는 ‘문자(SMS)로 인증하기’ 클릭 후 본인인증</li>
+                            <li>빨간 별표 표시된 곳 위 사진처럼 모두 입력 후 ‘확인’ 클릭
+                                <ul class="list-disc list-inside ml-4 text-sm text-slate-600 mt-2">
+                                    <li>추천구분: 정무직</li>
+                                    <li>추천직위: 보건복지부, 옆칸 입력: 장관</li>
+                                    <li>성명: 강청희</li>
+                                    <li>성별: 남</li>
+                                    <li>생년월일 : 1964년 06월 29일</li>
+                                    <li>전화번호 :010-9036-5658</li>
+                                    <li>직장명 : 더불어민주당 보건의료특별위원장</li>
+                                    <li>전자우편 : chkangmd@nate.com</li>
+                                    <li>추천사유: 자유롭게 쓰시면 됩니다</li>
+                                </ul>
+                            </li>
+                            <li>메일 혹은 문자로 등록 완료됐다고 뜹니다.</li>
+                        </ol>
+                        <a href="https://www.hrdb.go.kr/OpenRecommend/recommend/recommend_ch?menuId=MENU00317" target="_blank" class="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg shadow-md hover:bg-blue-700 transition duration-300 text-lg font-semibold">
+                            추천참여하기 click
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="pledge" class="bg-white rounded-xl shadow-lg p-8 md:p-12 text-center">
+            <h3 class="text-3xl font-bold text-slate-800 mb-4">💪 공직 수행 각오</h3>
+            <p class="max-w-3xl mx-auto text-slate-600 leading-relaxed">
+                저는 흉부외과 의사로서 생명의 최전선을 지켰고, 보건 행정가로서 정책의 무게를 체감했습니다. 이 경험을 바탕으로 국민과 의료계의 목소리를 경청하며, 소통과 협력을 통해 산적한 과제를 해결하겠습니다. 국민 중심의 철학으로 보건복지 시스템을 안정시키고, 미래를 위한 혁신을 이끌어 포용적이고 지속 가능한 대한민국을 만드는 데 헌신하겠습니다.
+            </p>
+            <p class="mt-8 font-bold text-slate-700">강청희 올림</p>
+        </section>
+    </main>
+
+    <footer class="text-center py-8">
+        <p class="text-slate-500 text-sm">&copy; 2025 보건복지 비전 및 국정 과제. All Rights Reserved.</p>
+    </footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const defaultOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    padding: 20,
+                    font: { size: 12, family: "'Noto Sans KR', sans-serif" },
+                    color: '#334155'
+                }
+            },
+            tooltip: {
+                enabled: true,
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                titleFont: { size: 14, family: "'Noto Sans KR', sans-serif" },
+                bodyFont: { size: 12, family: "'Noto Sans KR', sans-serif" },
+                padding: 12,
+                cornerRadius: 4,
+                callbacks: {
+                    title: (tooltipItems) => {
+                        const item = tooltipItems[0];
+                        let label = item.chart.data.labels[item.dataIndex];
+                        return Array.isArray(label) ? label.join(' ') : label;
+                    }
+                }
+            }
+        },
+    };
+
+    const colors = {
+        blue: 'rgba(59, 130, 246, 0.7)',
+        sky: 'rgba(14, 165, 233, 0.7)',
+        indigo: 'rgba(99, 102, 241, 0.7)',
+        teal: 'rgba(20, 184, 166, 0.7)',
+        borderBlue: '#3B82F6',
+        borderSky: '#0EA5E9',
+        borderIndigo: '#6366F1',
+        borderTeal: '#14B8A6'
+    };
+
+    const initVisionChart = () => {
+        const ctx = document.getElementById('visionChart')?.getContext('2d');
+        if (!ctx) return;
+        new Chart(ctx, {
+            type: 'polarArea',
+            data: {
+                labels: ['건강 시스템', '보건산업 육성', '사회안전망', '남북 협력'],
+                datasets: [{
+                    label: '핵심 비전',
+                    data: [8, 9, 10, 6],
+                    backgroundColor: [colors.blue, colors.sky, colors.indigo, colors.teal],
+                    borderWidth: 1,
+                    borderColor: '#fff'
+                }]
+            },
+            options: { ...defaultOptions }
+        });
+    };
+
+    const initInsuranceChart = () => {
+        const ctx = document.getElementById('insuranceChart')?.getContext('2d');
+        if (!ctx) return;
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['재정 건전성', '보장성 강화', '예방 중심'],
+                datasets: [{
+                    label: '정책 중요도',
+                    data: [85, 75, 60],
+                    backgroundColor: [colors.blue, colors.sky, colors.indigo],
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                ...defaultOptions,
+                indexAxis: 'y',
+                scales: {
+                    x: { beginAtZero: true, grid: { display: false } },
+                    y: { grid: { display: false } }
+                },
+                plugins: { ...defaultOptions.plugins, legend: { display: false } }
+            }
+        });
+    };
+
+    const initWelfareChart = () => {
+        const ctx = document.getElementById('welfareChart')?.getContext('2d');
+        if (!ctx) return;
+        new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: ['초고령 사회', '치매 책임제', '저출생 대응', '복지 사각지대'],
+                datasets: [{
+                    label: '정책 집중도',
+                    data: [9, 7, 8.5, 7.5],
+                    backgroundColor: colors.blue,
+                    borderColor: colors.borderBlue,
+                    pointBackgroundColor: colors.borderBlue,
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: colors.borderBlue
+                }]
+            },
+            options: {
+                ...defaultOptions,
+                plugins: { ...defaultOptions.plugins, legend: { display: false } },
+                scales: { r: { beginAtZero: true, max: 10 } }
+            }
+        });
+    };
+
+    const setupTabs = () => {
+        const tabs = document.querySelectorAll('.tab-button');
+        const panes = document.querySelectorAll('.tab-pane');
+        
+        const switchTab = (tabButton) => {
+            tabs.forEach(t => t.classList.remove('active'));
+            tabButton.classList.add('active');
+            
+            panes.forEach(p => p.classList.remove('active'));
+            const activePane = document.getElementById(tabButton.dataset.tab);
+            if (activePane) {
+                activePane.classList.add('active');
+            }
+
+            // Only initialize charts when their respective tabs are active
+            if(tabButton.dataset.tab === 'task2') initInsuranceChart();
+            if(tabButton.dataset.tab === 'task4') initWelfareChart();
+            // Note: initVisionChart is called separately as it's not in a tab.
+        };
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => switchTab(tab));
+        });
+
+        // Initialize the first active tab's content
+        const initialActiveTab = document.querySelector('.tab-button.active');
+        if (initialActiveTab) {
+            switchTab(initialActiveTab);
+        }
+    };
+
+    initVisionChart(); // Call vision chart init since it's not in a tab
+    setupTabs();
+});
+</script>
 </body>
 </html>
